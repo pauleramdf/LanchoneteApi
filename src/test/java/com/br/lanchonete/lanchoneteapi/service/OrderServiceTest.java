@@ -221,4 +221,20 @@ class OrderServiceTest {
         assertEquals(400, result.getTotalPrice());
         assertEquals(1, result.getItems().size());
     }
+
+    @Test
+    void getTotalPriceReturnsOrder() throws DefaultException {
+        // Arrange
+        Product product = ProductFactory.createValidProduct();
+        Order order = OrderFactory.createValidOrder(product);
+
+        when(orderRepository.findById(any(UUID.class))).thenReturn(Optional.of(order));
+        when(orderRepository.save(order)).thenReturn(order);
+
+        // Act
+        Order result = orderService.getTotalPrice(order.getId().toString());
+
+        // Assert
+        assertEquals(order, result);
+    }
 }
