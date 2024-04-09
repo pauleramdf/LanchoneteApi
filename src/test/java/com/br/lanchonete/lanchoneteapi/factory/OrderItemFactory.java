@@ -11,7 +11,7 @@ public class OrderItemFactory {
         OrderItem orderItem = new OrderItem();
         orderItem.setId(UUID.randomUUID());
         orderItem.setProduct(product);
-        orderItem.setQuantity(1);
+        orderItem.setQuantity(quantity);
         orderItem.setRelativePrice(product.getPrice() * quantity);
         return orderItem;
     }

@@ -3,7 +3,9 @@ package com.br.lanchonete.lanchoneteapi.service;
 import com.br.lanchonete.lanchoneteapi.config.exception.DefaultException;
 import com.br.lanchonete.lanchoneteapi.dto.AddProductDTO;
 import com.br.lanchonete.lanchoneteapi.dto.CreateOrderDTO;
+import com.br.lanchonete.lanchoneteapi.dto.RemoveProductDTO;
 import com.br.lanchonete.lanchoneteapi.model.Order;
+import com.br.lanchonete.lanchoneteapi.model.OrderItem;
 import com.br.lanchonete.lanchoneteapi.model.enums.OrderEvents;
 import com.br.lanchonete.lanchoneteapi.model.enums.OrderStatus;
 import com.br.lanchonete.lanchoneteapi.repository.ClientRepository;
@@ -95,4 +97,30 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    @Transactional
+    public Order removeProduct(RemoveProductDTO request) throws DefaultException {
+        log.info("Removing product from order");
+
+        var order = orderRepository.findById(UUID.fromString(request.getOrderId()))
+                .orElseThrow(() -> new DefaultException("Order not found"));
+
+        validateOrderActive(order);
+
+        var product = productService.getProductById(UUID.fromString(request.getProductId()));
+
+        var orderItem = orderItemService.findOrderItem(order, product);
+
+        removeOrderItem(orderItem, request.getQuantity());
+
+        decreaseOrderTotalPrice(order, request.getQuantity() * product.getPrice());
+
+        productService.increaseProductQuantity(product, request.getQuantity());
+
+        return order;
+    }
+
+    private void removeOrderItem(OrderItem orderItem, int quantityToRemove) throws DefaultException {
+        orderItemService.validateOrderHasQuantity(orderItem, quantityToRemove);
+        orderItemService.removeOrderItem(orderItem, quantityToRemove);
+    }
 }

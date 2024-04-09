@@ -3,9 +3,9 @@ package com.br.lanchonete.lanchoneteapi.controller;
 import com.br.lanchonete.lanchoneteapi.config.exception.DefaultException;
 import com.br.lanchonete.lanchoneteapi.dto.AddProductDTO;
 import com.br.lanchonete.lanchoneteapi.dto.CreateOrderDTO;
-import com.br.lanchonete.lanchoneteapi.dto.CreateProductDTO;
+import com.br.lanchonete.lanchoneteapi.dto.RemoveProductDTO;
+import com.br.lanchonete.lanchoneteapi.model.Order;
 import com.br.lanchonete.lanchoneteapi.service.OrderService;
-import com.br.lanchonete.lanchoneteapi.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +40,16 @@ public class OrderController {
         log.info("Adding product to order");
         try {
             return new ResponseEntity<>(orderService.addProduct(request), HttpStatus.CREATED);
+        } catch (DefaultException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
+    @PostMapping("/remove-product")
+    public ResponseEntity<Order> removeProduct(@Valid @RequestBody RemoveProductDTO request) {
+        log.info("Adding product to order");
+        try {
+            return new ResponseEntity<>(orderService.removeProduct(request), HttpStatus.OK);
         } catch (DefaultException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
