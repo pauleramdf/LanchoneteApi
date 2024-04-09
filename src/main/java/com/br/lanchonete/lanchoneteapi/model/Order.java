@@ -4,6 +4,8 @@ import com.br.lanchonete.lanchoneteapi.model.abstracts.AbstractModel;
 import com.br.lanchonete.lanchoneteapi.model.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +24,8 @@ public class Order extends AbstractModel {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "order")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
     private List<OrderItem> items;
 }

@@ -47,8 +47,7 @@ public class OrderService {
 
         productService.validateProductQuantity(request);
 
-        var order = orderRepository.findById(UUID.fromString(request.getOrderId()))
-                .orElseThrow(() -> new DefaultException("Order not found"));
+        var order = findById(UUID.fromString(request.getOrderId()));
 
         validateOrderActive(order);
 
@@ -101,8 +100,7 @@ public class OrderService {
     public Order removeProduct(RemoveProductDTO request) throws DefaultException {
         log.info("Removing product from order");
 
-        var order = orderRepository.findById(UUID.fromString(request.getOrderId()))
-                .orElseThrow(() -> new DefaultException("Order not found"));
+        var order = findById(UUID.fromString(request.getOrderId()));
 
         validateOrderActive(order);
 
@@ -122,5 +120,19 @@ public class OrderService {
     private void removeOrderItem(OrderItem orderItem, int quantityToRemove) throws DefaultException {
         orderItemService.validateOrderHasQuantity(orderItem, quantityToRemove);
         orderItemService.removeOrderItem(orderItem, quantityToRemove);
+    }
+
+    public Order getTotalPrice(String orderId) throws DefaultException {
+        var order = findById(UUID.fromString(orderId));
+
+        order.getItems().stream().map(OrderItem::getRelativePrice).reduce(Double::sum)
+                .ifPresent(order::setTotalPrice);
+
+        return orderRepository.save(order);
+    }
+
+    private Order findById(UUID orderId) throws DefaultException {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new DefaultException("Order not found"));
     }
 }
