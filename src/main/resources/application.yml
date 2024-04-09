@@ -1,0 +1,53 @@
+server:
+  port: 5001
+  error:
+    include-message: always
+    include-exception: false
+    include-stacktrace: never
+    include-binding-errors: never
+
+spring:
+  profiles:
+    active: ${ACTIVE_PROFILE:development}
+  application:
+    name: lanchonete-api
+
+flyway:
+  locations: classpath:db/migrations
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile: development
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://monorail.proxy.rlwy.net:53009/railway}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD}
+    hikari:
+      connection-timeout: 120000
+      idle-timeout: 600000
+      max-lifetime: 1200000
+      minimum-idle: 1
+      maximum-pool-size: 3
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  error:
+    include-message: always
+    include-exception: true
+    include-stacktrace: always
+    include-binding-errors: always
+
+springdoc:
+  swagger-ui:
+    config-url: /lanchonete-api/v3/api-docs/swagger-config
+    url: /lanchonete-api/v3/api-docs
+
+logging:
+  level:
+    ROOT: info
+    com.br.lanchonete: debug
