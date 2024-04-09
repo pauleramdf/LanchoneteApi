@@ -42,7 +42,7 @@ class ProductControllerTest {
     @Test
     void createProductReturnsCreatedStatus() throws Exception {
         // Arrange
-        CreateProductDTO createProductDTO = ProductFactory.createValidProduct();
+        CreateProductDTO createProductDTO = ProductFactory.createValidProductDTO();
         when(productService.createProduct(any(CreateProductDTO.class))).thenReturn(createProductDTO);
 
         // Act and Assert
@@ -57,7 +57,7 @@ class ProductControllerTest {
     @Test
     void createProductThrowsExceptionReturnsBadRequest() throws Exception {
         // Arrange
-        CreateProductDTO createProductDTO = ProductFactory.createValidProduct();
+        CreateProductDTO createProductDTO = ProductFactory.createValidProductDTO();
         when(productService.createProduct(any(CreateProductDTO.class))).thenThrow(new DefaultException("Product name already in use"));
 
         // Act

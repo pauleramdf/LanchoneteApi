@@ -1,6 +1,7 @@
 package com.br.lanchonete.lanchoneteapi.controller;
 
 import com.br.lanchonete.lanchoneteapi.config.exception.DefaultException;
+import com.br.lanchonete.lanchoneteapi.dto.AddProductDTO;
 import com.br.lanchonete.lanchoneteapi.dto.CreateOrderDTO;
 import com.br.lanchonete.lanchoneteapi.dto.CreateProductDTO;
 import com.br.lanchonete.lanchoneteapi.service.OrderService;
@@ -27,5 +28,12 @@ public class OrderController {
     public ResponseEntity<CreateOrderDTO> createOrder(@Valid @RequestBody CreateOrderDTO request) throws DefaultException {
         log.info("Creating order");
         return new ResponseEntity<>(orderService.createOrder(request), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/add-product")
+    public ResponseEntity<AddProductDTO> addProduct(@Valid @RequestBody AddProductDTO request) throws DefaultException {
+        log.info("Adding product to order");
+        return new ResponseEntity<>(orderService.addProduct(request), HttpStatus.CREATED);
+
     }
 }

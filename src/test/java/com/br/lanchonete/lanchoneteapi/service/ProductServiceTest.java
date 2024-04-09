@@ -32,7 +32,7 @@ class ProductServiceTest {
     @Test
     void createProductSuccessfully() throws Exception {
         // Arrange
-        CreateProductDTO createProductDTO = ProductFactory.createValidProduct();
+        CreateProductDTO createProductDTO = ProductFactory.createValidProductDTO();
         when(productRepository.findByName(any(String.class))).thenReturn(Optional.empty());
         when(productRepository.save(any())).thenReturn(createProductDTO.toEntity());
 
@@ -48,7 +48,7 @@ class ProductServiceTest {
     @Test
     void createProductThrowsExceptionWhenNameInUse() {
         // Arrange
-        CreateProductDTO createProductDTO = ProductFactory.createValidProduct();
+        CreateProductDTO createProductDTO = ProductFactory.createValidProductDTO();
         when(productRepository.findByName(any(String.class))).thenReturn(Optional.of(createProductDTO.toEntity()));
 
         // Act
