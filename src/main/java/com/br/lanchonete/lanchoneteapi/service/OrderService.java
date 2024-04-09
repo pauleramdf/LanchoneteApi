@@ -1,9 +1,7 @@
 package com.br.lanchonete.lanchoneteapi.service;
 
 import com.br.lanchonete.lanchoneteapi.config.exception.DefaultException;
-import com.br.lanchonete.lanchoneteapi.dto.AddProductDTO;
-import com.br.lanchonete.lanchoneteapi.dto.CreateOrderDTO;
-import com.br.lanchonete.lanchoneteapi.dto.RemoveProductDTO;
+import com.br.lanchonete.lanchoneteapi.dto.*;
 import com.br.lanchonete.lanchoneteapi.model.Order;
 import com.br.lanchonete.lanchoneteapi.model.OrderItem;
 import com.br.lanchonete.lanchoneteapi.model.enums.OrderEvents;
@@ -134,5 +132,39 @@ public class OrderService {
     private Order findById(UUID orderId) throws DefaultException {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new DefaultException("Order not found"));
+    }
+
+    public CloseOrderReturnDTO closeOrder(CloseOrderDTO request) throws DefaultException {
+        log.info("Closing order");
+
+        var order = findById(UUID.fromString(request.getOrderId()));
+
+        validateOrderActive(order);
+        validatePaymentValue(order, request.getPaymentValue());
+
+        order.setStatus(order.getStatus().nextState(OrderEvents.SUCCESS));
+
+        var change = request.getPaymentValue() - order.getTotalPrice();
+
+        orderRepository.save(order);
+
+
+        var returnDTO = new CloseOrderReturnDTO();
+        returnDTO.setOrder(order);
+        returnDTO.setChange(change);
+
+        return returnDTO;
+    }
+
+    private void validatePaymentValue(Order order, Double paymentValue) throws DefaultException {
+        if (order.getTotalPrice() == 0) {
+            throw new DefaultException("Order total price is 0");
+        }
+
+        if (order.getTotalPrice() > paymentValue){
+            order.setStatus(order.getStatus().nextState(OrderEvents.FAILED));
+            throw new DefaultException("Payment value is less than total price");
+        }
+
     }
 }
