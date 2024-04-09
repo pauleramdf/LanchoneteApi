@@ -68,7 +68,7 @@ class ProductControllerTest {
                 .andReturn();
 
         // Assert
-        String content = result.getResponse().getContentAsString();
+        String content = Objects.requireNonNull(result.getResolvedException()).getMessage();
         Assertions.assertTrue(content.contains("Product name already in use"), "The exception message should be present in the response");
     }
 
