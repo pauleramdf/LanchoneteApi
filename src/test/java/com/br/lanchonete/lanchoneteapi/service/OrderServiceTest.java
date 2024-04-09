@@ -1,9 +1,7 @@
 package com.br.lanchonete.lanchoneteapi.service;
 
 import com.br.lanchonete.lanchoneteapi.config.exception.DefaultException;
-import com.br.lanchonete.lanchoneteapi.dto.AddProductDTO;
-import com.br.lanchonete.lanchoneteapi.dto.CreateOrderDTO;
-import com.br.lanchonete.lanchoneteapi.dto.RemoveProductDTO;
+import com.br.lanchonete.lanchoneteapi.dto.*;
 import com.br.lanchonete.lanchoneteapi.factory.OrderFactory;
 import com.br.lanchonete.lanchoneteapi.factory.OrderItemFactory;
 import com.br.lanchonete.lanchoneteapi.factory.ProductFactory;
@@ -236,5 +234,39 @@ class OrderServiceTest {
 
         // Assert
         assertEquals(order, result);
+    }
+
+    @Test
+    void closeOrderReturnsCorrectChange() throws DefaultException {
+        // Arrange
+        Product product = ProductFactory.createValidProduct();
+        Order order = OrderFactory.createValidOrder(product);
+        CloseOrderDTO closeOrderDTO = new CloseOrderDTO();
+        closeOrderDTO.setOrderId(order.getId().toString());
+        closeOrderDTO.setPaymentValue(600.0);
+
+        when(orderRepository.findById(UUID.fromString(closeOrderDTO.getOrderId()))).thenReturn(Optional.of(order));
+        when(orderRepository.save(order)).thenReturn(order);
+
+        // Act
+        CloseOrderReturnDTO result = orderService.closeOrder(closeOrderDTO);
+
+        // Assert
+        assertEquals(100.0, result.getChange());
+    }
+
+    @Test
+    void closeOrderThrowsExceptionWhenPaymentValueIsLessThanTotalPrice() {
+        // Arrange
+        Product product = ProductFactory.createValidProduct();
+        Order order = OrderFactory.createValidOrder(product);
+        CloseOrderDTO closeOrderDTO = new CloseOrderDTO();
+        closeOrderDTO.setOrderId(order.getId().toString());
+        closeOrderDTO.setPaymentValue(20.0);
+
+        when(orderRepository.findById(UUID.fromString(closeOrderDTO.getOrderId()))).thenReturn(Optional.of(order));
+
+        // Act and Assert
+        assertThrows(DefaultException.class, () -> orderService.closeOrder(closeOrderDTO));
     }
 }

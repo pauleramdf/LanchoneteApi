@@ -1,9 +1,7 @@
 package com.br.lanchonete.lanchoneteapi.controller;
 
 import com.br.lanchonete.lanchoneteapi.config.exception.DefaultException;
-import com.br.lanchonete.lanchoneteapi.dto.AddProductDTO;
-import com.br.lanchonete.lanchoneteapi.dto.CreateOrderDTO;
-import com.br.lanchonete.lanchoneteapi.dto.RemoveProductDTO;
+import com.br.lanchonete.lanchoneteapi.dto.*;
 import com.br.lanchonete.lanchoneteapi.model.Order;
 import com.br.lanchonete.lanchoneteapi.service.OrderService;
 import jakarta.validation.Valid;
@@ -46,7 +44,7 @@ public class OrderController {
 
     @PostMapping("/remove-product")
     public ResponseEntity<Order> removeProduct(@Valid @RequestBody RemoveProductDTO request) {
-        log.info("Adding product to order");
+        log.info("Adding product to order {}", request.getOrderId());
         try {
             return new ResponseEntity<>(orderService.removeProduct(request), HttpStatus.OK);
         } catch (DefaultException e) {
@@ -56,9 +54,19 @@ public class OrderController {
 
     @GetMapping("/total/{order_id}")
     public ResponseEntity<Order> getTotalPrice(@PathVariable(name = "order_id") String orderId) {
-        log.info("Getting total price of order");
+        log.info("Getting total price of order {}", orderId);
         try {
             return new ResponseEntity<>(orderService.getTotalPrice(orderId), HttpStatus.OK);
+        } catch (DefaultException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
+    @PostMapping("/close")
+    public ResponseEntity<CloseOrderReturnDTO> closeOrder(@RequestBody CloseOrderDTO request) {
+        log.info("Closing order {}", request.getOrderId());
+        try {
+            return new ResponseEntity<>(orderService.closeOrder(request), HttpStatus.OK);
         } catch (DefaultException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
