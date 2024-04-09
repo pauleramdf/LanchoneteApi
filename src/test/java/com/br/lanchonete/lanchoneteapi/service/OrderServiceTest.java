@@ -3,11 +3,13 @@ package com.br.lanchonete.lanchoneteapi.service;
 import com.br.lanchonete.lanchoneteapi.config.exception.DefaultException;
 import com.br.lanchonete.lanchoneteapi.dto.AddProductDTO;
 import com.br.lanchonete.lanchoneteapi.dto.CreateOrderDTO;
+import com.br.lanchonete.lanchoneteapi.dto.RemoveProductDTO;
 import com.br.lanchonete.lanchoneteapi.factory.OrderFactory;
 import com.br.lanchonete.lanchoneteapi.factory.OrderItemFactory;
 import com.br.lanchonete.lanchoneteapi.factory.ProductFactory;
 import com.br.lanchonete.lanchoneteapi.model.Client;
 import com.br.lanchonete.lanchoneteapi.model.Order;
+import com.br.lanchonete.lanchoneteapi.model.OrderItem;
 import com.br.lanchonete.lanchoneteapi.model.Product;
 import com.br.lanchonete.lanchoneteapi.model.enums.OrderEvents;
 import com.br.lanchonete.lanchoneteapi.model.enums.OrderStatus;
@@ -192,5 +194,31 @@ class OrderServiceTest {
 
         verify(orderRepository, times(1)).save(order);
         assertEquals(expectedStatus, order.getStatus());
+    }
+
+    @Test
+    void removeProductReturnsUpdatedOrder() throws DefaultException {
+        // Arrange
+        RemoveProductDTO removeProductDTO = new RemoveProductDTO();
+        removeProductDTO.setOrderId(UUID.randomUUID().toString());
+        removeProductDTO.setProductId(UUID.randomUUID().toString());
+        removeProductDTO.setQuantity(1);
+
+        Product product = ProductFactory.createValidProduct();
+        Order order = OrderFactory.createValidOrder(product);
+        OrderItem orderItem = order.getItems().get(0);
+
+        when(orderRepository.findById(any(UUID.class))).thenReturn(Optional.of(order));
+        when(productService.getProductById(any(UUID.class))).thenReturn(product);
+        when(orderItemService.findOrderItem(order, product)).thenReturn(order.getItems().get(0));
+        when(orderRepository.save(order)).thenReturn(order);
+
+        // Act
+        Order result = orderService.removeProduct(removeProductDTO);
+
+        // Assert
+        assertEquals(OrderStatus.PENDING, result.getStatus());
+        assertEquals(400, result.getTotalPrice());
+        assertEquals(1, result.getItems().size());
     }
 }
