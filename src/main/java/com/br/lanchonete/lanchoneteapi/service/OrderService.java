@@ -4,6 +4,7 @@ import com.br.lanchonete.lanchoneteapi.config.exception.DefaultException;
 import com.br.lanchonete.lanchoneteapi.dto.*;
 import com.br.lanchonete.lanchoneteapi.model.Order;
 import com.br.lanchonete.lanchoneteapi.model.OrderItem;
+import com.br.lanchonete.lanchoneteapi.model.Product;
 import com.br.lanchonete.lanchoneteapi.model.enums.OrderEvents;
 import com.br.lanchonete.lanchoneteapi.model.enums.OrderStatus;
 import com.br.lanchonete.lanchoneteapi.repository.ClientRepository;
@@ -11,6 +12,7 @@ import com.br.lanchonete.lanchoneteapi.repository.OrderRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,28 +41,33 @@ public class OrderService {
         return request;
     }
 
+
     @Transactional
     public AddProductDTO addProduct(AddProductDTO request) throws DefaultException {
         log.info("Adding product to order");
 
-        productService.validateProductQuantity(request);
-
         var order = findById(UUID.fromString(request.getOrderId()));
-
         validateOrderActive(order);
 
-        var product = productService.getProductById(UUID.fromString(request.getProductId()));
-
-        var orderItem = orderItemService.createOrderItem(order, product, request.getQuantity());
-
-        increaseOrderTotalPrice(order, orderItem.getRelativePrice());
-        productService.decreaseProductQuantity(product, request.getQuantity());
-
-      if (order.getStatus().equals(OrderStatus.PENDING)) {
+        if (order.getStatus().equals(OrderStatus.PENDING)) {
             updateOrderStatus(order, OrderEvents.SUCCESS);
-      }
+        }
+
+        var product = productService.getProductById(UUID.fromString(request.getProductId()));
+        addProductToOrder(order, product, request.getQuantity());
 
         return request;
+    }
+
+    @Transactional
+    public void addProductToOrder(Order order, Product product, int quantity) throws DefaultException {
+
+        productService.validateProductQuantity(product, quantity);
+        var orderItem = orderItemService.createOrderItem(order, product, quantity);
+
+        increaseOrderTotalPrice(order, orderItem.getRelativePrice());
+        productService.decreaseProductQuantity(product, quantity);
+
     }
 
     void validateOrderActive(Order order) throws DefaultException {
@@ -166,5 +173,30 @@ public class OrderService {
             throw new DefaultException("Payment value is less than total price");
         }
 
+    }
+
+    @Transactional
+    public Order getTotalPriceBatch(OrderTotalDTO request) throws DefaultException {
+        log.info("Getting total price of order batch");
+
+        var order = findById(UUID.fromString(request.getOrderId()));
+
+        if (order.getStatus().equals(OrderStatus.PENDING)) {
+            updateOrderStatus(order, OrderEvents.SUCCESS);
+        }
+
+        var products = productService.findAllInIds(request.getProducts().stream().map(ProductOrderDTO::getProductId).toList());
+
+
+        for (ProductOrderDTO productOrderDTO : request.getProducts()) {
+            var product = products.stream()
+                    .filter(p -> p.getId().equals(UUID.fromString(productOrderDTO.getProductId())))
+                    .findFirst()
+                    .orElseThrow(() -> new DefaultException("Product not found in request"));
+
+            addProductToOrder(order, product, productOrderDTO.getQuantity());
+        }
+
+        return order;
     }
 }

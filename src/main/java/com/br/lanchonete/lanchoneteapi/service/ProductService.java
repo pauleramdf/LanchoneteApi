@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -32,13 +34,10 @@ public class ProductService {
         return product.isEmpty();
     }
 
-    public void validateProductQuantity(AddProductDTO addProductDTO) throws DefaultException {
+    public void validateProductQuantity(Product product, int quantity) throws DefaultException {
         log.debug("Validating product quantity in AddProductDTO");
 
-        var product = productRepository.findById(UUID.fromString(addProductDTO.getProductId()))
-                .orElseThrow(() -> new DefaultException("Product not found"));
-
-        if (addProductDTO.getQuantity() > product.getQuantity()) {
+        if (quantity > product.getQuantity()) {
             throw new DefaultException("Quantity in AddProductDTO is greater than available quantity in product");
         }
     }
@@ -63,5 +62,9 @@ public class ProductService {
 
         product.setQuantity(product.getQuantity() + quantity);
         productRepository.save(product);
+    }
+
+    public List<Product> findAllInIds(List<String> list) {
+        return productRepository.findAllById(list.stream().map(UUID::fromString).toList());
     }
 }
