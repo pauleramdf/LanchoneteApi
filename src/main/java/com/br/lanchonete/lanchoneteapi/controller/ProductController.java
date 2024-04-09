@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @Controller
@@ -21,9 +22,13 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/create")
-    public ResponseEntity<CreateProductDTO> createProduct(@Valid @RequestBody CreateProductDTO request) throws DefaultException {
+    public ResponseEntity<CreateProductDTO> createProduct(@Valid @RequestBody CreateProductDTO request) {
         log.info("Creating product");
-       return new ResponseEntity<>(productService.createProduct(request), HttpStatus.CREATED);
+        try {
+            return new ResponseEntity<>(productService.createProduct(request), HttpStatus.CREATED);
+        } catch (DefaultException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 
 }
