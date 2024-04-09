@@ -71,4 +71,14 @@ public class OrderController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
+
+    @PostMapping("/total_batch")
+    public ResponseEntity<Order> getTotalPriceBatch(@RequestBody OrderTotalDTO request) {
+        log.info("Getting total price of order batch {}", request.getOrderId());
+        try {
+            return new ResponseEntity<>(orderService.getTotalPriceBatch(request), HttpStatus.OK);
+        } catch (DefaultException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
 }
