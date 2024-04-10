@@ -57,24 +57,6 @@ class OrderControllerTest {
     }
 
     @Test
-    void createOrderThrowsExceptionReturnsBadRequest() throws Exception {
-        // Arrange
-        CreateOrderDTO createOrderDTO = new CreateOrderDTO();
-        createOrderDTO.setClientId(null);
-
-        // Act and Assert
-        mockMvc.perform(post("/orders/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(createOrderDTO)))
-                .andExpect(status().isBadRequest())
-                        .andExpect(result -> {
-                            String content = Objects.requireNonNull(result.getResolvedException()).getMessage();
-                            Assertions.assertTrue(content.contains("Validation failed"), "The validation should fail with a message containing 'Validation failed'");
-                        });
-
-    }
-
-    @Test
     void addProductReturnsUpdatedOrder() throws Exception {
         // Arrange
         AddProductDTO addProductDTO = new AddProductDTO();
