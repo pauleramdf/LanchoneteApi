@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 
 @Slf4j
 @CrossOrigin
@@ -26,10 +25,10 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/create")
-    public ResponseEntity<CreateOrderDTO> createOrder(@Valid @RequestBody CreateOrderDTO request) throws DefaultException {
+    public ResponseEntity<Order> createOrder() throws DefaultException {
         log.info("Creating order");
         try {
-            return new ResponseEntity<>(orderService.createOrder(request), HttpStatus.CREATED);
+            return new ResponseEntity<>(orderService.createOrder(), HttpStatus.CREATED);
         } catch (DefaultException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
