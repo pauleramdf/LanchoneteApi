@@ -52,36 +52,14 @@ class OrderServiceTest {
 
     @Test
     void createOrderSuccessfully() throws DefaultException {
-        UUID clientId = UUID.randomUUID();
-        CreateOrderDTO createOrderDTO = new CreateOrderDTO();
-        createOrderDTO.setClientId(clientId.toString());
+        var product = ProductFactory.createValidProduct();
+        var order = OrderFactory.createValidOrder(product);
 
-        Client client = new Client();
-        Order order = new Order();
-        order.setClient(client);
-        order.setStatus(OrderStatus.IN_PROGRESS);
-
-        when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
-        CreateOrderDTO result = orderService.createOrder(createOrderDTO);
-
-        assertEquals(clientId.toString(), result.getClientId());
-        verify(clientRepository, times(1)).findById(clientId);
+        Order result = orderService.createOrder();
+        assertNotNull(result);
         verify(orderRepository, times(1)).save(any(Order.class));
-    }
-
-    @Test
-    void createOrderClientNotFound() {
-        UUID clientId = UUID.randomUUID();
-        CreateOrderDTO createOrderDTO = new CreateOrderDTO();
-        createOrderDTO.setClientId(clientId.toString());
-
-        when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
-
-        assertThrows(DefaultException.class, () -> orderService.createOrder(createOrderDTO));
-        verify(clientRepository, times(1)).findById(clientId);
-        verify(orderRepository, times(0)).save(any(Order.class));
     }
 
     @Test

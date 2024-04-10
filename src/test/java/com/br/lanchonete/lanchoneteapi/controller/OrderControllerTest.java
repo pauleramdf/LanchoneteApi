@@ -3,6 +3,8 @@ package com.br.lanchonete.lanchoneteapi.controller;
 import com.br.lanchonete.lanchoneteapi.dto.AddProductDTO;
 import com.br.lanchonete.lanchoneteapi.dto.CreateOrderDTO;
 import com.br.lanchonete.lanchoneteapi.dto.RemoveProductDTO;
+import com.br.lanchonete.lanchoneteapi.factory.OrderFactory;
+import com.br.lanchonete.lanchoneteapi.factory.ProductFactory;
 import com.br.lanchonete.lanchoneteapi.model.Order;
 import com.br.lanchonete.lanchoneteapi.service.OrderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,33 +45,15 @@ class OrderControllerTest {
     @Test
     void createOrderReturnsCreatedStatus() throws Exception {
         // Arrange
-        CreateOrderDTO createOrderDTO = new CreateOrderDTO();
-        createOrderDTO.setClientId(UUID.randomUUID().toString());
-        when(orderService.createOrder(any(CreateOrderDTO.class))).thenReturn(createOrderDTO);
+        var product = ProductFactory.createValidProduct();
+        var order = OrderFactory.createValidOrder(product);
+        when(orderService.createOrder()).thenReturn(order);
 
         // Act and Assert
         mockMvc.perform(post("/orders/create")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(createOrderDTO)))
+                        .content(new ObjectMapper().writeValueAsString(order)))
                 .andExpect(status().isCreated());
-    }
-
-    @Test
-    void createOrderThrowsExceptionReturnsBadRequest() throws Exception {
-        // Arrange
-        CreateOrderDTO createOrderDTO = new CreateOrderDTO();
-        createOrderDTO.setClientId(null);
-
-        // Act and Assert
-        mockMvc.perform(post("/orders/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(createOrderDTO)))
-                .andExpect(status().isBadRequest())
-                        .andExpect(result -> {
-                            String content = Objects.requireNonNull(result.getResolvedException()).getMessage();
-                            Assertions.assertTrue(content.contains("Validation failed"), "The validation should fail with a message containing 'Validation failed'");
-                        });
-
     }
 
     @Test

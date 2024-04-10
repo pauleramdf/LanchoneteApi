@@ -20,6 +20,6 @@ public class OrderItem extends AbstractModel {
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "orders_id")
     private Order order;
 }
