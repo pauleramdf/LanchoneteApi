@@ -33,7 +33,7 @@ public abstract class AbstractModel {
 
     @PrePersist
     public void prePersist() {
-//        this.createdBy = ContextApplication.getCurrentUser().getLogin();
+        this.createdBy = "admin"; // ContextApplication.getCurrentUser().getLogin();
         this.createdAt = LocalDateTime.now();
         this.updatedAt = this.createdAt;
         this.updatedBy = this.createdBy;
@@ -42,7 +42,7 @@ public abstract class AbstractModel {
 
     @PreUpdate
     public void preUpdate() {
-//        this.updatedBy = ContextApplication.getCurrentUser().getLogin();
+        this.updatedBy = "admin"; // ContextApplication.getCurrentUser().getLogin();
         this.updatedAt = LocalDateTime.now();
     }
 }

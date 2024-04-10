@@ -6,16 +6,19 @@ import com.br.lanchonete.lanchoneteapi.model.Order;
 import com.br.lanchonete.lanchoneteapi.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Slf4j
-@Controller
+@CrossOrigin
+@RestController
 @AllArgsConstructor
 @RequestMapping("/orders")
 public class OrderController {
@@ -80,5 +83,11 @@ public class OrderController {
         } catch (DefaultException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<Page<Order>> getAllOrders(Pageable pageable) {
+        log.info("Getting all orders");
+        return new ResponseEntity<>(orderService.getAllOrders(pageable), HttpStatus.OK);
     }
 }

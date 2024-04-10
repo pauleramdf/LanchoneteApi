@@ -1,15 +1,15 @@
 package com.br.lanchonete.lanchoneteapi.service;
 
 import com.br.lanchonete.lanchoneteapi.config.exception.DefaultException;
-import com.br.lanchonete.lanchoneteapi.dto.AddProductDTO;
 import com.br.lanchonete.lanchoneteapi.dto.CreateProductDTO;
 import com.br.lanchonete.lanchoneteapi.model.Product;
 import com.br.lanchonete.lanchoneteapi.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
 import java.util.List;
 import java.util.UUID;
 
@@ -66,5 +66,9 @@ public class ProductService {
 
     public List<Product> findAllInIds(List<String> list) {
         return productRepository.findAllById(list.stream().map(UUID::fromString).toList());
+    }
+
+    public Page<Product> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable);
     }
 }

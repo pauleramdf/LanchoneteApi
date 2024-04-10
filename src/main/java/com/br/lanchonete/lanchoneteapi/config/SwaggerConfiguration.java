@@ -17,7 +17,8 @@ public class SwaggerConfiguration {
         return new OpenAPI()
                 .components(
                         new Components())
-                .addServersItem(new Server().url("http://localhost:5001"))
+                .addServersItem(new Server().url("http://localhost:8080"))
+                .addServersItem(new Server().url("https://lanchoneteapi-production.up.railway.app"))
                 .info(new Info()
                         .title("Lanchonete API")
                         .version("v1.0")

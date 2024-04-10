@@ -31,6 +31,7 @@ public class CreateProductDTO {
                 .quantity(quantity)
                 .description(description)
                 .tag(tag)
+                .active(true)
                 .build();
     }
 }
