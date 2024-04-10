@@ -2,6 +2,7 @@ package com.br.lanchonete.lanchoneteapi.model;
 
 import com.br.lanchonete.lanchoneteapi.model.abstracts.AbstractModel;
 import com.br.lanchonete.lanchoneteapi.model.enums.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,6 +19,7 @@ public class Order extends AbstractModel {
     @GeneratedValue
     private UUID id;
 
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private Double totalPrice;
 
@@ -27,6 +29,7 @@ public class Order extends AbstractModel {
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
+    @JsonIgnoreProperties("order")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "order")
     private List<OrderItem> items;
 }

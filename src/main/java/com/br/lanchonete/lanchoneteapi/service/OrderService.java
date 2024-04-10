@@ -29,18 +29,17 @@ public class OrderService {
     private final ProductService productService;
     private final OrderItemService orderItemService;
 
-    public CreateOrderDTO createOrder(CreateOrderDTO request) throws DefaultException {
+    public Order createOrder() throws DefaultException {
         log.info("Creating order");
 
-        var client = clientRepository.findById(UUID.fromString(request.getClientId()))
-                .orElseThrow(() -> new DefaultException("Client not found"));
+//        var client = clientRepository.findById(UUID.fromString(request.getClientId()))
+//                .orElseThrow(() -> new DefaultException("Client not found"));
 
         var order = new Order();
-        order.setClient(client);
+//        order.setClient(client);
         order.setStatus(OrderStatus.PENDING);
         order.setTotalPrice(0D);
-        orderRepository.save(order);
-        return request;
+        return orderRepository.save(order);
     }
 
 
@@ -181,7 +180,13 @@ public class OrderService {
     public Order getTotalPriceBatch(OrderTotalDTO request) throws DefaultException {
         log.info("Getting total price of order batch");
 
-        var order = findById(UUID.fromString(request.getOrderId()));
+        Order order = null;
+
+        if (request.getOrderId() == null) {
+            order = createOrder();
+        } else {
+             order = findById(UUID.fromString(request.getOrderId()));
+        }
 
         if (order.getStatus().equals(OrderStatus.PENDING)) {
             updateOrderStatus(order, OrderEvents.SUCCESS);
