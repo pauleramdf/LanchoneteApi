@@ -138,7 +138,7 @@ public class OrderService {
     }
 
     private Order findById(UUID orderId) throws DefaultException {
-        return orderRepository.findById(orderId)
+        return orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new DefaultException("Order not found"));
     }
 
