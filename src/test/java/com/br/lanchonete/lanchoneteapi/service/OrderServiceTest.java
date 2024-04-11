@@ -74,14 +74,14 @@ class OrderServiceTest {
         request.setProductId(product.getId().toString());
         request.setQuantity(quantity);
 
-        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.findByOrderId(order.getId())).thenReturn(Optional.of(order));
         when(productService.getProductById(product.getId())).thenReturn(product);
         when(orderItemService.createOrderItem(order, product, quantity)).thenReturn(OrderItemFactory.createValidOrderItem(product, quantity));
         when(orderRepository.save(order)).thenReturn(order);
 
         AddProductDTO result = orderService.addProduct(request);
 
-        verify(orderRepository, times(1)).findById(order.getId());
+        verify(orderRepository, times(1)).findByOrderId(order.getId());
         verify(productService, times(1)).getProductById(product.getId());
         verify(orderRepository, times(2)).save(order);
         verify(productService, times(1)).decreaseProductQuantity(product, quantity);
@@ -184,7 +184,7 @@ class OrderServiceTest {
         Order order = OrderFactory.createValidOrder(product);
         OrderItem orderItem = order.getItems().get(0);
 
-        when(orderRepository.findById(any(UUID.class))).thenReturn(Optional.of(order));
+        when(orderRepository.findByOrderId(any(UUID.class))).thenReturn(Optional.of(order));
         when(productService.getProductById(any(UUID.class))).thenReturn(product);
         when(orderItemService.findOrderItem(order, product)).thenReturn(order.getItems().get(0));
         when(orderRepository.save(order)).thenReturn(order);
@@ -204,7 +204,7 @@ class OrderServiceTest {
         Product product = ProductFactory.createValidProduct();
         Order order = OrderFactory.createValidOrder(product);
 
-        when(orderRepository.findById(any(UUID.class))).thenReturn(Optional.of(order));
+        when(orderRepository.findByOrderId(any(UUID.class))).thenReturn(Optional.of(order));
         when(orderRepository.save(order)).thenReturn(order);
 
         // Act
@@ -223,7 +223,7 @@ class OrderServiceTest {
         closeOrderDTO.setOrderId(order.getId().toString());
         closeOrderDTO.setPaymentValue(600.0);
 
-        when(orderRepository.findById(UUID.fromString(closeOrderDTO.getOrderId()))).thenReturn(Optional.of(order));
+        when(orderRepository.findByOrderId(UUID.fromString(closeOrderDTO.getOrderId()))).thenReturn(Optional.of(order));
         when(orderRepository.save(order)).thenReturn(order);
 
         // Act
@@ -242,7 +242,7 @@ class OrderServiceTest {
         closeOrderDTO.setOrderId(order.getId().toString());
         closeOrderDTO.setPaymentValue(20.0);
 
-        when(orderRepository.findById(UUID.fromString(closeOrderDTO.getOrderId()))).thenReturn(Optional.of(order));
+        when(orderRepository.findByOrderId(UUID.fromString(closeOrderDTO.getOrderId()))).thenReturn(Optional.of(order));
 
         // Act and Assert
         assertThrows(DefaultException.class, () -> orderService.closeOrder(closeOrderDTO));
